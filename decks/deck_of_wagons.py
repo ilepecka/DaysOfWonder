@@ -15,42 +15,83 @@ class WagonTypes(Enum):
 class WagonsDeck:
 
     def __init__(self):
-        self.wagon_cards = list()
-        self.__add_wagons__(self.wagon_cards, WagonTypes.locomotive, 16)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.blue_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.yellow_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.white_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.black_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.orange_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.green_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.red_wagon, 12)
-        self.__add_wagons__(self.wagon_cards, WagonTypes.pink_wagon, 12)
-        self.__shuffle__(self.wagon_cards)
+        self.__wagon_cards = list()
+        self.__rejected_wagon_cards = list()
+        self.__add_wagons(WagonTypes.locomotive, 6)
+        self.__add_wagons(WagonTypes.blue_wagon, 2)
+        self.__add_wagons(WagonTypes.yellow_wagon, 2)
+        self.__add_wagons(WagonTypes.white_wagon, 2)
+        self.__add_wagons(WagonTypes.black_wagon, 2)
+        self.__add_wagons(WagonTypes.orange_wagon, 2)
+        self.__add_wagons(WagonTypes.green_wagon, 2)
+        self.__add_wagons(WagonTypes.red_wagon, 2)
+        self.__add_wagons(WagonTypes.pink_wagon, 2)
+        self.__shuffle_wagons_cards()
 
-    def __add_wagons__(self, karty_wagonow, wagon_type, how_many):
+    def __add_wagons(self, wagon_type, how_many):
         new_wagons = how_many * [wagon_type]
-        karty_wagonow.extend(new_wagons)
+        self.__wagon_cards.extend(new_wagons)
 
-    def __swap__(self, karty_wagonow, index_1, index_2):
-        karty_wagonow[index_1], karty_wagonow[index_2] = karty_wagonow[index_2], karty_wagonow[index_1]
+    def __swap(self, wagon_cards, index_1, index_2):
+        wagon_cards[index_1], wagon_cards[index_2] = wagon_cards[index_2], wagon_cards[index_1]
 
-    def __shuffle__(self, karty_wagonow):
+    def __shuffle_wagons_cards(self):
         for i in range(3847):
-            random_1 = random.randint(0, len(karty_wagonow) - 1)
-            random_2 = random.randint(0, len(karty_wagonow) - 1)
-            self.__swap__(karty_wagonow, random_1, random_2)        
+            random_1 = random.randint(0, len(self.__wagon_cards) - 1)
+            random_2 = random.randint(0, len(self.__wagon_cards) - 1)
+            self.__swap(self.__wagon_cards, random_1, random_2)        
 
-    def pop(self, how_many):
-        return WagonTypes.locomotive
+    def pop(self):
+        if not self.__wagon_cards:
+            self.__wagon_cards, self.__rejected_wagon_cards = self.__rejected_wagon_cards, self.__wagon_cards
+            self.__rejected_wagon_cards.clear()
+            if len(self.__wagon_cards) > 1:
+                self.__shuffle_wagons_cards()
 
-    def put_back(self, wagon):
-        pass
+        if not self.__wagon_cards:
+            return None
+
+        return self.__wagon_cards.pop()
+
+    def reject(self, wagon_card):
+        if wagon_card != None:
+            self.__rejected_wagon_cards.append(wagon_card)
 
     def print_deck(self):
-        for card in self.wagon_cards:
+        print('main deck: ')
+
+        for card in self.__wagon_cards:
+            print(card)
+
+        print('rejected: ')
+
+        for card in self.__rejected_wagon_cards:
             print(card)
     
         
 deck = WagonsDeck()
-deck.print_deck()
+
+def flip_coin():
+    return random.randint(0, 1) == 0
+
+for i in range(0, 500):
+
+    deck.print_deck()
+
+    card1 = deck.pop()
+    card2 = deck.pop()
+
+    print('Got ' + str(card1) + ' and ' + str(card2))
+
+    if flip_coin():
+        print('Rejecting ' + str(card1))
+        deck.reject(card1)
+    else:
+        print('Rejecting ' + str(card2))
+        deck.reject(card2)
+
+    print('-----------------------------------------------------------')
+    nothing = input()
+
+
 
